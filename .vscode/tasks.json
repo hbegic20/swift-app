@@ -1,0 +1,98 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run app in simulator",
+      "detail": "Build DemoApp, open the iPhone simulator, launch the app and show its logs",
+      "type": "shell",
+      "command": "scripts/run-app.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": {
+        "owner": "swift",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(/.*?):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Build app",
+      "detail": "Compile DemoApp for the simulator without launching it",
+      "type": "shell",
+      "command": "xcodebuild -project DemoApp/DemoApp.xcodeproj -scheme DemoApp -destination 'platform=iOS Simulator,name=iPhone 18 Pro' -derivedDataPath .build/DemoApp -quiet build",
+      "group": "build",
+      "problemMatcher": {
+        "owner": "swift",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(/.*?):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Test SocketKit",
+      "detail": "Run the SocketKit unit tests",
+      "type": "shell",
+      "command": "swift test",
+      "options": {
+        "cwd": "${workspaceFolder}/SocketKit"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": {
+        "owner": "swift",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(/.*?):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Start test server",
+      "detail": "WebSocket on 8080, HTTP on 8081. Type commands (m, n, u, drop, \u2026) in this panel",
+      "type": "shell",
+      "command": "swift run",
+      "options": {
+        "cwd": "${workspaceFolder}/TestServer"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated",
+        "focus": true
+      }
+    }
+  ]
+}
