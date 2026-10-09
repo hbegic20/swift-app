@@ -10,6 +10,16 @@ public enum ConnectionStatus: Equatable, Sendable {
     case live
     /// Waiting before the next attempt.
     case waitingToRetry(delay: TimeInterval)
+
+    /// Short text for the status line and the event log.
+    public var label: String {
+        switch self {
+        case .disconnected: "disconnected"
+        case .connecting: "connecting"
+        case .live: "live"
+        case .waitingToRetry(let delay): String(format: "retrying in %.1fs", delay)
+        }
+    }
 }
 
 /// The connection loop: connect, confirm, catch up, go live, and retry with
@@ -145,7 +155,7 @@ public final class SocketConnection {
     private func setStatus(_ newStatus: ConnectionStatus) {
         guard !Task.isCancelled, status != newStatus else { return }
         status = newStatus
-        store.appendLog(.status, Self.describe(newStatus))
+        store.appendLog(.status, newStatus.label)
     }
 
     static func describe(_ event: Event) -> String {
@@ -159,12 +169,4 @@ public final class SocketConnection {
         }
     }
 
-    static func describe(_ status: ConnectionStatus) -> String {
-        switch status {
-        case .disconnected: "disconnected"
-        case .connecting: "connecting"
-        case .live: "live"
-        case .waitingToRetry(let delay): String(format: "retrying in %.1fs", delay)
-        }
-    }
 }
