@@ -162,7 +162,7 @@ final class Server: @unchecked Sendable {
                 .components(separatedBy: "\r\n").first ?? ""
             let (status, body) = route(requestLine)
             print("HTTP \(requestLine) -> \(status)")
-            let head = "HTTP/1.1 \(status)\r\nContent-Type: application/json\r\nContent-Length: \(body.count)\r\nConnection: close\r\n\r\n"
+            let head = "HTTP/1.1 \(status)\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: \(body.count)\r\nConnection: close\r\n\r\n"
             connection.send(content: Data(head.utf8) + body, completion: .contentProcessed { _ in connection.cancel() })
         }
     }
