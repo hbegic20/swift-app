@@ -27,6 +27,11 @@ public final class EventStore {
         notifications.count { !readNotificationIDs.contains($0.id) }
     }
 
+    /// Text for the unread badge, or `nil` when there is nothing unread.
+    public var unreadBadge: String? {
+        unreadCount > 0 ? "\(unreadCount) unread" : nil
+    }
+
     public func isRead(_ notification: AppNotification) -> Bool {
         readNotificationIDs.contains(notification.id)
     }

@@ -3,7 +3,6 @@ import SocketKit
 
 struct ContentView: View {
     let appDelegate: AppDelegate
-    @State private var permissionText = "not asked yet"
     private var connection: SocketConnection { appDelegate.connection }
     private var store: EventStore { connection.store }
 
@@ -19,11 +18,10 @@ struct ContentView: View {
                     Section("Push") {
                         // Ask from a button, never on launch.
                         Button("Enable notifications") {
-                            Task {
-                                permissionText = await appDelegate.requestPermission() ? "allowed" : "denied"
-                            }
+                            Task { await appDelegate.requestPermission() }
                         }
-                        Text("Permission: \(permissionText)").font(.caption).foregroundStyle(.secondary)
+                        Text("Permission: \(NotificationPermission.label(for: appDelegate.permissionStatus))")
+                            .font(.caption).foregroundStyle(.secondary)
                     }
 
                     Section("Messages (\(store.messages.count))") {
@@ -47,10 +45,12 @@ struct ContentView: View {
                     } header: {
                         HStack {
                             Text("Notifications")
-                            Text("\(store.unreadCount) unread")
-                                .padding(.horizontal, 6)
-                                .background(.red, in: Capsule())
-                                .foregroundStyle(.white)
+                            if let badge = store.unreadBadge {
+                                Text(badge)
+                                    .padding(.horizontal, 6)
+                                    .background(.red, in: Capsule())
+                                    .foregroundStyle(.white)
+                            }
                             Spacer()
                             Button("Mark read") { store.markAllNotificationsRead() }
                         }

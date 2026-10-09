@@ -50,6 +50,15 @@ struct EventStoreTests {
         #expect(!store.isRead(store.notifications[2]))
     }
 
+    @Test func badgeIsHiddenWhenNothingIsUnread() {
+        let store = EventStore()
+        #expect(store.unreadBadge == nil)
+        store.ingest([Sample.notification("n1", sequence: 1), Sample.notification("n2", sequence: 2)])
+        #expect(store.unreadBadge == "2 unread")
+        store.markAllNotificationsRead()
+        #expect(store.unreadBadge == nil)
+    }
+
     @Test func messagesDoNotAffectUnreadCount() {
         let store = EventStore()
         store.ingest([Sample.message("m1", sequence: 1)])

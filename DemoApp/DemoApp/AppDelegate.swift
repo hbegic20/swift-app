@@ -15,6 +15,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     )
     /// Where the last tapped push wants to go. The screen scrolls there.
     var openedRoute: PushRoute?
+    /// What iOS reports, re-read each time the app becomes active.
+    var permissionStatus: UNAuthorizationStatus = .notDetermined
 
     func application(
         _ application: UIApplication,
@@ -25,8 +27,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         return true
     }
 
-    func requestPermission() async -> Bool {
-        (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])) ?? false
+    func requestPermission() async {
+        _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+        await refreshPermission()
+    }
+
+    /// The user can change the permission in the Settings app at any time.
+    func refreshPermission() async {
+        permissionStatus = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
     }
 
     // A push arrived while the app is on screen: sync, and still show the banner.

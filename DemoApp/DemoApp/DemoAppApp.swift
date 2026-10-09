@@ -13,7 +13,9 @@ struct DemoAppApp: App {
         // The socket lives only while the app is on screen (rule 4).
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
-            case .active: appDelegate.connection.start()
+            case .active:
+                appDelegate.connection.start()
+                Task { await appDelegate.refreshPermission() }
             case .background: appDelegate.connection.stop()
             default: break
             }
