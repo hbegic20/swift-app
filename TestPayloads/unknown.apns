@@ -1,0 +1,7 @@
+{
+  "Simulator Target Bundle": "none.DemoApp",
+  "aps": {
+    "alert": { "title": "Rate today's class", "body": "A push type this app version does not know" }
+  },
+  "type": "workoutPoll"
+}

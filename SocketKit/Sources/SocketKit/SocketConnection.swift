@@ -86,6 +86,18 @@ public final class SocketConnection {
         }
     }
 
+    /// Call when a push arrives or is tapped (rule 11). Catches up over HTTP
+    /// whether or not the socket is running. Errors go to the log, because
+    /// the socket's own catch-up will try again on its next connect.
+    public func syncAfterPush() async {
+        store.appendLog(.status, "push received, syncing")
+        do {
+            try await catchUp()
+        } catch {
+            store.appendLog(.status, "push sync failed: \(error.localizedDescription)")
+        }
+    }
+
     /// The loop itself. Runs until the task is cancelled or the sleeper throws.
     func run() async {
         var attempt = 0

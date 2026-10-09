@@ -1,0 +1,9 @@
+{
+  "Simulator Target Bundle": "none.DemoApp",
+  "aps": {
+    "alert": { "title": "Class starts in 10 min", "body": "Leg day, studio 2" },
+    "sound": "default"
+  },
+  "type": "notification",
+  "workoutID": "legs-1"
+}

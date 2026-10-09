@@ -1,0 +1,9 @@
+{
+  "Simulator Target Bundle": "none.DemoApp",
+  "aps": {
+    "alert": { "title": "Coach", "body": "You have a new message" },
+    "sound": "default"
+  },
+  "type": "message",
+  "chatID": "42"
+}
