@@ -17,6 +17,13 @@ All commands below run from the repository root unless a `cd` is shown.
 
 No third-party libraries are used.
 
+## How it works
+
+[WebSockets: Web vs Swift](https://claude.ai/code/artifact/01a1d92e-5828-450a-a354-c441630f212d)
+explains the main differences from a web WebSocket and walks through this
+app's code: connect, reconnect, heartbeat, catch-up, decoding, the store and
+the app wiring.
+
 ## Requirements
 
 - macOS with full Xcode installed (tested with Xcode 27). Check it with:
