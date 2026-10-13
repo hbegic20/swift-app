@@ -42,6 +42,25 @@ struct EventDecodingTests {
         #expect(notification.workoutID == nil)
     }
 
+    // Postgres (Supabase) sends fractional seconds with a varying number of
+    // digits and a +00:00 offset. All of these are the same kind of date.
+    @Test(arguments: [
+        ("2026-10-08T09:00:00Z", 0.0),
+        ("2026-10-08T09:00:00.5Z", 0.5),
+        ("2026-10-08T09:00:00.5358+00:00", 0.5358),
+        ("2026-10-08T09:00:00.236091+00:00", 0.236091),
+        ("2026-10-08T11:00:00.25+02:00", 0.25),
+    ])
+    func decodesDatesWithAndWithoutFractionalSeconds(date: String, fraction: Double) throws {
+        let json = #"{"type":"message","id":"m1","chatID":"42","senderID":"c","text":"t","createdAt":"\#(date)","sequence":1}"#
+        guard case .message(let message) = try EventDecoder.decode(Data(json.utf8)) else {
+            Issue.record("expected a message")
+            return
+        }
+        let whole = ISO8601DateFormatter().date(from: "2026-10-08T09:00:00Z")!
+        #expect(abs(message.createdAt.timeIntervalSince(whole) - fraction) < 0.000_001)
+    }
+
     // Rule 9: unknown event types are ignored, never an error.
     @Test func unknownTypeIsNotAnError() throws {
         let json = #"{"type":"workoutReminder","id":"x1","whatever":true,"sequence":9}"#
@@ -58,6 +77,8 @@ struct EventDecodingTests {
         #"{"id":"m1"}"#,                                       // no type
         #"{"type":"message","id":"m1"}"#,                      // known type, missing fields
         #"{"type":"message","id":"m1","chatID":"42","senderID":"c","text":"t","createdAt":"yesterday","sequence":1}"#,
+        #"{"type":"message","id":"m1","chatID":"42","senderID":"c","text":"t","createdAt":"2026-10-08T09:00:00.abcZ","sequence":1}"#,
+        #"{"type":"message","id":"m1","chatID":"42","senderID":"c","text":"t","createdAt":"2026-10-08T09:00:00.5","sequence":1}"#, // no time zone
     ])
     func unreadableFrameThrows(json: String) {
         #expect(throws: (any Error).self) { try EventDecoder.decode(Data(json.utf8)) }

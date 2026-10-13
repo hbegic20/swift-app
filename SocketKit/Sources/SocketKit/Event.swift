@@ -109,8 +109,34 @@ public enum EventDecoder {
 
     private static func makeDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let text = try container.decode(String.self)
+            guard let date = parseDate(text) else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "not an ISO 8601 date: \(text)")
+            }
+            return date
+        }
         return decoder
+    }
+
+    /// ISO 8601 with or without fractional seconds, any number of digits:
+    /// `2026-10-08T09:00:00Z` (test server) and
+    /// `2026-10-08T09:00:00.236091+00:00` (Postgres).
+    /// `.iso8601` rejects fractional seconds before iOS 27 / macOS 27, so the
+    /// fraction is cut off, the rest parsed, and the fraction added back.
+    static func parseDate(_ text: String) -> Date? {
+        var whole = text
+        var fraction = 0.0
+        if let dot = text.firstIndex(of: "."), dot > (text.firstIndex(of: "T") ?? text.endIndex) {
+            let digitsEnd = text[text.index(after: dot)...].firstIndex { !$0.isNumber } ?? text.endIndex
+            guard let value = Double("0" + text[dot..<digitsEnd]) else { return nil }
+            fraction = value
+            whole = String(text[..<dot] + text[digitsEnd...])
+        }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: whole)?.addingTimeInterval(fraction)
     }
 
     private struct RawPage: Decodable {
